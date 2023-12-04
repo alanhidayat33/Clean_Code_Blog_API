@@ -5,16 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Models\Bookmark;
 use Illuminate\Http\Request;
+use App\Services\BookmarkService;
 
 class BookmarkController extends Controller
 {
+
+    protected $bookmarkService;
+
+    public function __construct(BookmarkService $bookmarkService)
+    {
+        $this->bookmarkService = $bookmarkService;
+    }
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
         $user = $request->user();
-        $bookmarks = Bookmark::where('user_id', $user->id)->get();
+        $bookmarks = $this->bookmarkService->getBookmarks($user->id);
 
         return response()->json(['bookmarks' => $bookmarks]);
     }
@@ -26,12 +34,7 @@ class BookmarkController extends Controller
     {
         $user = $request->user();
 
-        $post = Post::findOrFail($postId);
-
-        $bookmark = Bookmark::firstOrCreate([
-            'user_id' => $user->id,
-            'post_id' => $post->id
-        ]);
+        $bookmark = $this->bookmarkService->createBookmark($user->id, $postId);
 
         return response()->json([
             'message' => $bookmark->wasRecentlyCreated ? 'Post successfully bookmarked' : 'Post already bookmarked'
@@ -45,9 +48,7 @@ class BookmarkController extends Controller
     {
         $user = $request->user();
 
-        $deleted = Bookmark::where('user_id', $user->id)
-                            ->where('post_id', $postId)
-                            ->delete();
+        $deleted = $this->bookmarkService->deleteBookmark($user->id, $postId);
 
         if ($deleted) {
             return response()->json([
