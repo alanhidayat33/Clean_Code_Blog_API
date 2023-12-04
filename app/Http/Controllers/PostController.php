@@ -62,8 +62,7 @@ class PostController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $post = Post::findOrFail($id);
-        $post->delete();
+        $post = Post::findOrFail($id)->delete();
 
         return response()->json([
             'message' => 'Post berhasil dihapus'
