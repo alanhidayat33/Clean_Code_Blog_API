@@ -7,9 +7,13 @@ use Illuminate\Http\Request;
 use App\Http\Resources\CommentResource;
 use App\Http\Requests\CommentCreateRequest;
 use App\Http\Requests\CommentUpdateRequest;
+use App\Traits\CreatesEntity;
+use App\Traits\UpdatesEntity;
+use App\Traits\DeletesEntity;
 
 class CommentController extends Controller
 {
+    use CreatesEntity, UpdatesEntity, DeletesEntity;
     /**
      * Display a listing of the resource.
      */
@@ -25,9 +29,7 @@ class CommentController extends Controller
      */
     public function store(CommentCreateRequest $request)
     {
-        $data = $request->validated();
-
-        $comment = Comment::create($data);
+        $comment = $this->createEntity(Comment::class, $request);
 
         return new CommentResource($comment);
     }
@@ -47,13 +49,7 @@ class CommentController extends Controller
      */
     public function update(CommentUpdateRequest $request, string $id)
     {
-        $data = $request->validated();
-
-        Comment::where('id', $id)->update($data);
-
-        return response()->json([
-            'message' => 'Comment berhasil diupdate'
-        ]);
+        return $this->updateEntity(Comment::class, $request, $id);
     }
 
     /**
@@ -61,10 +57,6 @@ class CommentController extends Controller
      */
     public function destroy(string $id)
     {
-        Comment::where('id', $id)->delete();
-
-        return response()->json([
-            'message' => 'Comment berhasil dihapus'
-        ]);
+        return $this->deleteEntity(Comment::class, $id);
     }
 }
