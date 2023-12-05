@@ -24,7 +24,7 @@ class PostCreateRequest extends FormRequest
         return [
             'title' => ['required','string', 'max:255'],
             'content' => ['required','string', 'min:5'],
-            // 'user_id' => ['required','integer', 'exists:users,id'],
+            'user_id' => ['required','integer', 'exists:users,id'],
         ];
     }
 }
