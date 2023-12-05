@@ -33,7 +33,7 @@ Route::middleware(['auth:sanctum'])->group(function(){
 
 
     Route::get('/bookmarks', [BookmarkController::class, 'index']);
-    Route::post('/bookmarks/{postId}', [BookmarkController::class, 'store']);
-    Route::delete('/bookmarks/{postId}', [BookmarkController::class, 'destroy']);
+    Route::post('/bookmarks/{post}', [BookmarkController::class, 'store']);
+    Route::delete('/bookmarks/{post}', [BookmarkController::class, 'destroy']);
     // Route::apiResource('bookmarks', BookmarkController::class);
 });

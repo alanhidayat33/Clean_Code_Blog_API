@@ -4,28 +4,48 @@ namespace App\Services;
 
 use App\Models\Post;
 use App\Models\Bookmark;
+use Illuminate\Support\Facades\Auth;
 
 class BookmarkService
 {
-    public function getBookmarks($userId)
+    public function getBookmarks()
     {
-        return Bookmark::where('user_id', $userId)->get();
+        $bookmark = Bookmark::where('user_id', Auth::user()->id)->get();
+
+        return response()->json($bookmark);
     }
 
-    public function createBookmark($userId, $postId)
+    public function createBookmark(Post $post)
     {
-        $post = Post::findOrFail($postId);
+        $post = Post::findOrFail($post->id);
 
-        return Bookmark::firstOrCreate([
-            'user_id' => $userId,
+        $bookmark = Bookmark::firstOrCreate([
+            'user_id' => Auth::user()->id,
             'post_id' => $post->id
+        ]);
+
+        $message = $bookmark->wasRecentlyCreated ? 'Post successfully bookmarked' : 'Post already bookmarked';
+
+        return response()->json([
+            'bookmark' => $bookmark,
+            'message' => $message
         ]);
     }
 
-    public function deleteBookmark($userId, $postId)
+    public function deleteBookmark(Post $post)
     {
-        return Bookmark::where('user_id', $userId)
-            ->where('post_id', $postId)
+        $post = Post::findOrFail($post->id);
+
+        $deleted = Bookmark::where('user_id', Auth::user()->id)
+            ->where('post_id', $post->id)
             ->delete();
+
+        if ($deleted) {
+            return response()->json([
+                'message' => 'Bookmark successfully deleted'
+            ]);
+        }
+
+        return response()->json(['message' => 'Bookmark not found'], 404);
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use App\Models\Bookmark;
 use Illuminate\Http\Request;
 use App\Services\BookmarkService;
 
@@ -19,43 +18,24 @@ class BookmarkController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $user = $request->user();
-        $bookmarks = $this->bookmarkService->getBookmarks($user->id);
-
-        return response()->json(['bookmarks' => $bookmarks]);
+        return $this->bookmarkService->getBookmarks();
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, $postId)
+    public function store(Post $post)
     {
-        $user = $request->user();
-
-        $bookmark = $this->bookmarkService->createBookmark($user->id, $postId);
-
-        return response()->json([
-            'message' => $bookmark->wasRecentlyCreated ? 'Post successfully bookmarked' : 'Post already bookmarked'
-        ]);
+        return $this->bookmarkService->createBookmark($post);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, $postId)
+    public function destroy(Post $post)
     {
-        $user = $request->user();
-
-        $deleted = $this->bookmarkService->deleteBookmark($user->id, $postId);
-
-        if ($deleted) {
-            return response()->json([
-                'message' => 'Bookmark successfully deleted'
-            ]);
-        }
-
-        return response()->json(['message' => 'Bookmark not found'], 404);
+        return $this->bookmarkService->deleteBookmark($post);
     }
 }
